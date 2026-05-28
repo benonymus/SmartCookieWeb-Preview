@@ -12,7 +12,7 @@ plugins {
 
 android {
 
-    compileSdkVersion 35
+    compileSdkVersion 36
     buildFeatures {
         buildConfig true
         viewBinding true
