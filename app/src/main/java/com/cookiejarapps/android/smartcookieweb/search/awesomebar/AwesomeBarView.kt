@@ -12,6 +12,7 @@ import com.cookiejarapps.android.smartcookieweb.browser.bookmark.CustomBookmarks
 import com.cookiejarapps.android.smartcookieweb.ext.components
 import com.cookiejarapps.android.smartcookieweb.preferences.UserPreferences
 import mozilla.components.browser.state.search.SearchEngine
+import mozilla.components.browser.state.state.selectedOrDefaultSearchEngine
 import mozilla.components.concept.awesomebar.AwesomeBar
 import mozilla.components.concept.engine.EngineSession
 import mozilla.components.feature.search.SearchUseCases
@@ -36,7 +37,7 @@ class AwesomeBarView(
     private val historyStorageProvider: HistoryStorageSuggestionProvider
     private val bookmarksStorageSuggestionProvider: BookmarksStorageSuggestionProvider
     private val shortcutsEnginePickerProvider: ShortcutsSuggestionProvider
-    private val defaultSearchSuggestionProvider: SearchSuggestionProvider
+    private var defaultSearchSuggestionProvider: SearchSuggestionProvider? = null
     private val defaultSearchActionProvider: SearchActionProvider
     private val searchSuggestionProviderMap: MutableMap<SearchEngine, List<AwesomeBar.SuggestionProvider>>
     private var providersInUse = mutableSetOf<AwesomeBar.SuggestionProvider>()
@@ -88,12 +89,12 @@ class AwesomeBarView(
         }
         sessionProvider =
             SessionSuggestionProvider(
-                activity.resources,
                 components.store,
                 selectTabUseCase,
                 components.icons,
                 getDrawable(activity, R.drawable.ic_round_search),
-                excludeSelectedSession = true
+                excludeSelectedSession = true,
+                switchToTabDescription = activity.getString(R.string.tabs),
             )
 
         historyStorageProvider =
@@ -116,22 +117,25 @@ class AwesomeBarView(
             colorFilter = createBlendModeColorFilterCompat(primaryTextColor, SRC_IN)
         }.toBitmap()
 
-        defaultSearchSuggestionProvider =
-            SearchSuggestionProvider(
-                context = activity,
-                store = components.store,
-                searchUseCase = searchUseCase,
-                fetchClient = components.client,
-                mode = SearchSuggestionProvider.Mode.MULTIPLE_SUGGESTIONS,
-                icon = searchBitmap,
-                showDescription = false,
-                engine = engineForSpeculativeConnects,
-                filterExactMatch = true,
-                private = when (activity.browsingModeManager.mode) {
-                    BrowsingMode.Normal -> false
-                    BrowsingMode.Private -> true
-                }
-            )
+        // a-c 142 made the (context, store, ...) constructor private; build with the
+        // default engine when one is known. If no engine has loaded yet, this stays null
+        // and the action provider alone is used.
+        components.store.state.search.selectedOrDefaultSearchEngine?.let { defaultEngine ->
+            defaultSearchSuggestionProvider =
+                SearchSuggestionProvider(
+                    defaultEngine,
+                    searchUseCase,
+                    components.client,
+                    mode = SearchSuggestionProvider.Mode.MULTIPLE_SUGGESTIONS,
+                    icon = searchBitmap,
+                    engine = engineForSpeculativeConnects,
+                    filterExactMatch = true,
+                    private = when (activity.browsingModeManager.mode) {
+                        BrowsingMode.Normal -> false
+                        BrowsingMode.Private -> true
+                    }
+                )
+        }
 
         defaultSearchActionProvider =
             SearchActionProvider(
@@ -240,7 +244,7 @@ class AwesomeBarView(
         return when (state.searchEngineSource) {
             is SearchEngineSource.Default -> {
                 if(UserPreferences(context).searchSuggestionsEnabled){
-                    listOf(
+                    listOfNotNull(
                         defaultSearchActionProvider,
                         defaultSearchSuggestionProvider
                     )
