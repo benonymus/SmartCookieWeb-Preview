@@ -14,6 +14,7 @@ import com.cookiejarapps.android.smartcookieweb.media.MediaSessionService
 import mozilla.components.browser.engine.gecko.GeckoEngine
 import mozilla.components.browser.engine.gecko.fetch.GeckoViewFetchClient
 import mozilla.components.browser.icons.BrowserIcons
+import mozilla.components.browser.state.action.SearchAction
 import mozilla.components.browser.state.engine.EngineMiddleware
 import mozilla.components.browser.session.storage.SessionStorage
 import mozilla.components.browser.state.store.BrowserStore
@@ -186,6 +187,10 @@ open class Components(private val applicationContext: Context) {
                 )
         ).apply{
             icons.install(engine, this)
+
+            // RegionMiddleware no longer reacts to InitAction since a-c 149,
+            // so kick off region/search-engine loading explicitly.
+            dispatch(SearchAction.RefreshSearchEnginesAction)
 
             WebNotificationFeature(
                     applicationContext, engine, icons, R.drawable.ic_notification,
