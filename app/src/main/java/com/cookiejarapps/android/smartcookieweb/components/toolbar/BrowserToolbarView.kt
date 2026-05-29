@@ -19,10 +19,12 @@ import mozilla.components.browser.state.selector.selectedTab
 import mozilla.components.browser.state.state.CustomTabSessionState
 import mozilla.components.browser.toolbar.BrowserToolbar
 import mozilla.components.browser.toolbar.display.DisplayToolbar
+import mozilla.components.concept.engine.EngineView
 import mozilla.components.support.ktx.util.URLStringUtils.toDisplayUrl
+import mozilla.components.ui.widgets.behavior.DependencyGravity
 import mozilla.components.ui.widgets.behavior.EngineViewScrollingBehavior
+import mozilla.components.ui.widgets.behavior.EngineViewScrollingBehaviorFactory
 import java.lang.ref.WeakReference
-import mozilla.components.ui.widgets.behavior.ViewPosition as MozacToolbarPosition
 
 interface BrowserToolbarViewInteractor {
     fun onBrowserToolbarPaste(text: String)
@@ -40,7 +42,8 @@ class BrowserToolbarView(
     private val toolbarPosition: ToolbarPosition,
     private val interactor: BrowserToolbarViewInteractor,
     private val customTabSession: CustomTabSessionState?,
-    private val lifecycleOwner: LifecycleOwner
+    private val lifecycleOwner: LifecycleOwner,
+    private val engineView: EngineView,
 ) {
 
     private val settings = UserPreferences(container.context)
@@ -170,7 +173,7 @@ class BrowserToolbarView(
         }
 
         (view.layoutParams as? CoordinatorLayout.LayoutParams)?.apply {
-            (behavior as? EngineViewScrollingBehavior)?.forceExpand(view)
+            (behavior as? EngineViewScrollingBehavior)?.forceExpand()
         }
     }
 
@@ -181,7 +184,7 @@ class BrowserToolbarView(
         }
 
         (view.layoutParams as? CoordinatorLayout.LayoutParams)?.apply {
-            (behavior as? EngineViewScrollingBehavior)?.forceCollapse(view)
+            (behavior as? EngineViewScrollingBehavior)?.forceCollapse()
         }
     }
 
@@ -205,7 +208,7 @@ class BrowserToolbarView(
         when (settings.toolbarPosition) {
             ToolbarPosition.BOTTOM.ordinal -> {
                 if (settings.hideBarWhileScrolling && !isPwaTabOrTwaTab) {
-                    setDynamicToolbarBehavior(MozacToolbarPosition.BOTTOM)
+                    setDynamicToolbarBehavior(DependencyGravity.Bottom)
                 } else {
                     expandToolbarAndMakeItFixed()
                 }
@@ -216,7 +219,7 @@ class BrowserToolbarView(
                 ) {
                     expandToolbarAndMakeItFixed()
                 } else {
-                    setDynamicToolbarBehavior(MozacToolbarPosition.TOP)
+                    setDynamicToolbarBehavior(DependencyGravity.Top)
                 }
             }
         }
@@ -231,9 +234,13 @@ class BrowserToolbarView(
     }
 
     @VisibleForTesting
-    internal fun setDynamicToolbarBehavior(toolbarPosition: MozacToolbarPosition) {
+    internal fun setDynamicToolbarBehavior(dependencyGravity: DependencyGravity) {
         (view.layoutParams as? CoordinatorLayout.LayoutParams)?.apply {
-            behavior = EngineViewScrollingBehavior(view.context, null, toolbarPosition)
+            behavior = EngineViewScrollingBehaviorFactory().build(
+                engineView = engineView,
+                dependency = view,
+                dependencyGravity = dependencyGravity,
+            )
         }
     }
 

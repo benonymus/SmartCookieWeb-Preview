@@ -89,7 +89,6 @@ import mozilla.components.support.utils.ext.requestInPlacePermissions
 import com.cookiejarapps.android.smartcookieweb.browser.home.SharedViewModel
 import java.lang.ref.WeakReference
 import mozilla.components.ui.widgets.behavior.EngineViewClippingBehavior as OldEngineViewClippingBehavior
-import mozilla.components.ui.widgets.behavior.ViewPosition as OldToolbarPosition
 
 /**
  * Base fragment extended by [BrowserFragment].
@@ -251,7 +250,8 @@ abstract class BaseBrowserFragment : Fragment(), UserInteractionHandler, Activit
             toolbarPosition = if(UserPreferences(context).toolbarPosition == ToolbarPosition.BOTTOM.ordinal) ToolbarPosition.BOTTOM else ToolbarPosition.TOP,
             interactor = browserInteractor,
             customTabSession = customTabSessionId?.let { store.state.findCustomTab(it) },
-            lifecycleOwner = viewLifecycleOwner
+            lifecycleOwner = viewLifecycleOwner,
+            engineView = binding.engineView,
         )
 
         //TODO: show ssl dialog

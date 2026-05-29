@@ -149,7 +149,10 @@ class AppRequestInterceptor(val context: Context) : RequestInterceptor {
         ErrorType.ERROR_SAFEBROWSING_HARMFUL_URI,
         ErrorType.ERROR_SAFEBROWSING_PHISHING_URI,
         ErrorType.ERROR_SAFEBROWSING_MALWARE_URI,
-        ErrorType.ERROR_SAFEBROWSING_UNWANTED_URI -> ErrorCategory.Malware
+        ErrorType.ERROR_SAFEBROWSING_UNWANTED_URI,
+        ErrorType.ERROR_HARMFULADDON_URI -> ErrorCategory.Malware
+
+        else -> ErrorCategory.Network
     }
 
     internal enum class ErrorCategory(val htmlRes: String) {
