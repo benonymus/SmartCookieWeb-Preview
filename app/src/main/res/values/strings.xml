@@ -8,6 +8,7 @@
   <string name="scw_addon_softblocked_re_enabled">This add-on violates store policies and has been disabled. You may re-enable it, but it may not work as expected.</string>
   <string name="scw_addon_softblocked">This add-on violates store policies and has been disabled.</string>
   <string name="scw_addon_soft_blocked_install">%1$s violates %2$s store policies. It may not work as expected.</string>
+  <string name="scw_addon_failed_to_query_extensions">Couldn\'t load add-ons</string>
   <string name="url_project" translatable="false">https://github.com/CookieJarApps/SmartCookieWeb-preview</string>
 
   <string name="key_javascript_enabled" translatable="false">javascript_enabled</string>
