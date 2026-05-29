@@ -327,6 +327,6 @@ open class Components(private val applicationContext: Context) {
     val webAppUseCases by lazy { WebAppUseCases(applicationContext, store, webAppShortcutManager) }
 
     val tabsUseCases: TabsUseCases by lazy { TabsUseCases(store) }
-    val downloadsUseCases: DownloadsUseCases by lazy { DownloadsUseCases(applicationContext, store) }
+    val downloadsUseCases: DownloadsUseCases by lazy { DownloadsUseCases(store, applicationContext) }
     val contextMenuUseCases: ContextMenuUseCases by lazy { ContextMenuUseCases(store) }
 }
