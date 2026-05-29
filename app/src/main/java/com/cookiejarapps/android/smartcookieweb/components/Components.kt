@@ -3,6 +3,7 @@ package com.cookiejarapps.android.smartcookieweb.components
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
+import android.os.Environment
 import androidx.core.app.NotificationManagerCompat
 import com.cookiejarapps.android.smartcookieweb.BrowserActivity
 import com.cookiejarapps.android.smartcookieweb.BuildConfig
@@ -62,10 +63,11 @@ import mozilla.components.browser.engine.gecko.ext.toContentBlockingSetting
 import mozilla.components.browser.engine.gecko.permission.GeckoSitePermissionsStorage
 import mozilla.components.concept.engine.EngineSession
 import mozilla.components.feature.addons.amo.AMOAddonsProvider
-import mozilla.components.feature.downloads.DefaultDateTimeProvider
 import mozilla.components.feature.downloads.DefaultFileSizeFormatter
 import mozilla.components.feature.downloads.DefaultPackageNameProvider
 import mozilla.components.feature.downloads.DownloadEstimator
+import mozilla.components.support.utils.DefaultDateTimeProvider
+import mozilla.components.support.utils.DefaultDownloadFileUtils
 import mozilla.components.feature.prompts.PromptMiddleware
 import mozilla.components.feature.prompts.file.FileUploadsDirCleaner
 import mozilla.components.feature.sitepermissions.OnDiskSitePermissionsStorage
@@ -95,6 +97,10 @@ open class Components(private val applicationContext: Context) {
     val downloadEstimator by lazy { DownloadEstimator(dateTimeProvider) }
 
     val packageNameProvider by lazy { DefaultPackageNameProvider(applicationContext) }
+
+    val downloadFileUtils by lazy {
+        DefaultDownloadFileUtils(applicationContext) { Environment.DIRECTORY_DOWNLOADS }
+    }
 
     val preferences: SharedPreferences =
             applicationContext.getSharedPreferences(BROWSER_PREFERENCES, Context.MODE_PRIVATE)

@@ -55,10 +55,15 @@ class AwesomeBarWrapper @JvmOverloads constructor(
                 },
                 onAutoComplete = { suggestion ->
                     onEditSuggestionListener?.invoke(suggestion.editSuggestion!!)
-                }
+                },
+                onRemoveClicked = { },
             )
         }
     }
+
+    override fun updateHiddenSuggestions(hiddenSuggestions: Set<AwesomeBar.GroupedSuggestion>) = Unit
+
+    override fun setOnRemoveSuggestionButtonClicked(listener: (AwesomeBar.GroupedSuggestion) -> Unit) = Unit
 
     override fun addProviders(vararg providers: AwesomeBar.SuggestionProvider) {
         val newProviders = this.providers.value.toMutableList()
