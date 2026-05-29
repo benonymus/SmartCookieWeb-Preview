@@ -1,6 +1,7 @@
 package com.cookiejarapps.android.smartcookieweb.integration
 
 import android.content.Context
+import android.os.Environment
 import android.view.View
 import androidx.fragment.app.FragmentManager
 import com.cookiejarapps.android.smartcookieweb.databinding.FragmentBrowserBinding
@@ -39,7 +40,7 @@ class ContextMenuIntegration(
                 createCopyLinkCandidate(context, parentView, snackbarDelegate),
                 createShareLinkCandidate(context),
                 createOpenImageInNewTabCandidate(context, tabsUseCases, parentView, snackbarDelegate),
-                createSaveImageCandidate(context, contextMenuUseCases),
+                createSaveImageCandidate(context, contextMenuUseCases, { Environment.DIRECTORY_DOWNLOADS }),
                 createCopyImageLocationCandidate(context, parentView, snackbarDelegate),
                 createAddContactCandidate(context),
                 createShareEmailAddressCandidate(context),
@@ -57,7 +58,8 @@ class ContextMenuIntegration(
                 context,
                 tabsUseCases,
                 contextMenuUseCases,
-                parentView
+                parentView,
+                downloadsLocation = { Environment.DIRECTORY_DOWNLOADS },
             ) + appLinksCandidate
         }
     }

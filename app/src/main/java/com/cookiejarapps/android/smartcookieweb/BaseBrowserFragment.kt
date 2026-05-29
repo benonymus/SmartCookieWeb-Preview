@@ -454,6 +454,7 @@ abstract class BaseBrowserFragment : Fragment(), UserInteractionHandler, Activit
                 onDownloadStopped = { download, id, status ->
                     debug("Download ID#$id $download with status $status is done.")
                 },
+                downloadFileUtils = components.downloadFileUtils,
                 downloadManager = FetchDownloadManager(
                     requireContext().applicationContext,
                     components.store,

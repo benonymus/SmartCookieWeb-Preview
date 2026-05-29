@@ -158,7 +158,7 @@ class WebExtensionPromptFeature(
 
             is WebExtensionInstallException.SoftBlocked -> {
                 url = formatBlocklistURL(exception)
-                context.getString(R.string.mozac_feature_addons_soft_blocked_1, addonName, appName)
+                context.getString(R.string.scw_addon_soft_blocked_install, addonName, appName)
             }
 
             is WebExtensionInstallException.UserCancelled -> {

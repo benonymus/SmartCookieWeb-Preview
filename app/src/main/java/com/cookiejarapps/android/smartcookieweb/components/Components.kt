@@ -66,6 +66,7 @@ import mozilla.components.feature.addons.amo.AMOAddonsProvider
 import mozilla.components.feature.downloads.DefaultFileSizeFormatter
 import mozilla.components.feature.downloads.DefaultPackageNameProvider
 import mozilla.components.feature.downloads.DownloadEstimator
+import mozilla.components.feature.downloads.filewriter.DefaultDownloadFileWriter
 import mozilla.components.support.utils.DefaultDateTimeProvider
 import mozilla.components.support.utils.DefaultDownloadFileUtils
 import mozilla.components.feature.prompts.PromptMiddleware
@@ -101,6 +102,8 @@ open class Components(private val applicationContext: Context) {
     val downloadFileUtils by lazy {
         DefaultDownloadFileUtils(applicationContext) { Environment.DIRECTORY_DOWNLOADS }
     }
+
+    val downloadFileWriter by lazy { DefaultDownloadFileWriter(applicationContext, downloadFileUtils) }
 
     val preferences: SharedPreferences =
             applicationContext.getSharedPreferences(BROWSER_PREFERENCES, Context.MODE_PRIVATE)
@@ -174,7 +177,7 @@ open class Components(private val applicationContext: Context) {
     val store by lazy {
         BrowserStore(
                 middleware = listOf(
-                        DownloadMiddleware(applicationContext, DownloadService::class.java, deleteFileFromStorage = { false }),
+                        DownloadMiddleware(applicationContext, DownloadService::class.java, deleteFileFromStorage = { false }, downloadFileUtils = downloadFileUtils),
                         ReaderViewMiddleware(),
                         ThumbnailsMiddleware(thumbnailStorage),
                         UndoMiddleware(),
@@ -338,6 +341,6 @@ open class Components(private val applicationContext: Context) {
     val webAppUseCases by lazy { WebAppUseCases(applicationContext, store, webAppShortcutManager) }
 
     val tabsUseCases: TabsUseCases by lazy { TabsUseCases(store) }
-    val downloadsUseCases: DownloadsUseCases by lazy { DownloadsUseCases(store, applicationContext) }
+    val downloadsUseCases: DownloadsUseCases by lazy { DownloadsUseCases(store, downloadFileUtils) }
     val contextMenuUseCases: ContextMenuUseCases by lazy { ContextMenuUseCases(store) }
 }
