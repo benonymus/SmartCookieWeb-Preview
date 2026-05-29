@@ -63,6 +63,7 @@ import mozilla.components.concept.engine.EngineSession
 import mozilla.components.feature.addons.amo.AMOAddonsProvider
 import mozilla.components.feature.downloads.DefaultDateTimeProvider
 import mozilla.components.feature.downloads.DefaultFileSizeFormatter
+import mozilla.components.feature.downloads.DefaultPackageNameProvider
 import mozilla.components.feature.downloads.DownloadEstimator
 import mozilla.components.feature.prompts.PromptMiddleware
 import mozilla.components.feature.prompts.file.FileUploadsDirCleaner
@@ -91,6 +92,8 @@ open class Components(private val applicationContext: Context) {
     val dateTimeProvider by lazy { DefaultDateTimeProvider() }
 
     val downloadEstimator by lazy { DownloadEstimator(dateTimeProvider) }
+
+    val packageNameProvider by lazy { DefaultPackageNameProvider(applicationContext) }
 
     val preferences: SharedPreferences =
             applicationContext.getSharedPreferences(BROWSER_PREFERENCES, Context.MODE_PRIVATE)
