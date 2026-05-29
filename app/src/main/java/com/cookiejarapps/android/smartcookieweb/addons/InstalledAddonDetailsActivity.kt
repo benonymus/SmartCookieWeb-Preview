@@ -122,7 +122,7 @@ class InstalledAddonDetailsActivity : AppCompatActivity() {
                             switch.setState(true)
                             Toast.makeText(
                                     this,
-                                    getString(R.string.mozac_feature_addons_successfully_enabled, addon.translateName(this)),
+                                    getString(R.string.scw_addon_successfully_enabled, addon.translateName(this)),
                                     Toast.LENGTH_SHORT
                             ).show()
                         },
@@ -141,7 +141,7 @@ class InstalledAddonDetailsActivity : AppCompatActivity() {
                             switch.setState(false)
                             Toast.makeText(
                                     this,
-                                    getString(R.string.mozac_feature_addons_successfully_disabled, addon.translateName(this)),
+                                    getString(R.string.scw_addon_successfully_disabled, addon.translateName(this)),
                                     Toast.LENGTH_SHORT
                             ).show()
                         },
@@ -212,7 +212,7 @@ class InstalledAddonDetailsActivity : AppCompatActivity() {
                     onSuccess = {
                         Toast.makeText(
                                 this,
-                                getString(R.string.mozac_feature_addons_successfully_uninstalled, addon.translateName(this)),
+                                getString(R.string.scw_addon_successfully_uninstalled, addon.translateName(this)),
                                 Toast.LENGTH_SHORT
                         ).show()
                         finish()

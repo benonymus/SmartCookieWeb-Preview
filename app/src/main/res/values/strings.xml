@@ -2,6 +2,9 @@
 <resources>
   <string name="app_name" translatable="false">SmartCookieWeb Preview</string>
   <string name="scw_addon_allow_in_private_browsing">Run in private windows</string>
+  <string name="scw_addon_successfully_enabled">Enabled %s</string>
+  <string name="scw_addon_successfully_disabled">Disabled %s</string>
+  <string name="scw_addon_successfully_uninstalled">Uninstalled %s</string>
   <string name="url_project" translatable="false">https://github.com/CookieJarApps/SmartCookieWeb-preview</string>
 
   <string name="key_javascript_enabled" translatable="false">javascript_enabled</string>
