@@ -164,7 +164,7 @@ open class Components(private val applicationContext: Context) {
     val store by lazy {
         BrowserStore(
                 middleware = listOf(
-                        DownloadMiddleware(applicationContext, DownloadService::class.java, deleteFileFromStorage = false),
+                        DownloadMiddleware(applicationContext, DownloadService::class.java, deleteFileFromStorage = { false }),
                         ReaderViewMiddleware(),
                         ThumbnailsMiddleware(thumbnailStorage),
                         UndoMiddleware(),

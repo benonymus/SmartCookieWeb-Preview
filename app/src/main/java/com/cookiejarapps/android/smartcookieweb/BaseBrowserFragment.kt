@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -586,9 +587,9 @@ abstract class BaseBrowserFragment : Fragment(), UserInteractionHandler, Activit
             binding.engineView.setDynamicToolbarMaxHeight(toolbarHeight)
 
             val toolbarPosition = if (UserPreferences(context).shouldUseBottomToolbar) {
-                OldToolbarPosition.BOTTOM
+                Gravity.BOTTOM
             } else {
-                OldToolbarPosition.TOP
+                Gravity.TOP
             }
             (binding.swipeRefresh.layoutParams as CoordinatorLayout.LayoutParams).behavior =
                 OldEngineViewClippingBehavior(
