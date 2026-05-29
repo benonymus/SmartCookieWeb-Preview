@@ -40,7 +40,7 @@ class ContextMenuIntegration(
                 createCopyLinkCandidate(context, parentView, snackbarDelegate),
                 createShareLinkCandidate(context),
                 createOpenImageInNewTabCandidate(context, tabsUseCases, parentView, snackbarDelegate),
-                createSaveImageCandidate(context, contextMenuUseCases, { Environment.DIRECTORY_DOWNLOADS }),
+                createSaveImageCandidate(context, contextMenuUseCases, { Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path }),
                 createCopyImageLocationCandidate(context, parentView, snackbarDelegate),
                 createAddContactCandidate(context),
                 createShareEmailAddressCandidate(context),
@@ -59,7 +59,7 @@ class ContextMenuIntegration(
                 tabsUseCases,
                 contextMenuUseCases,
                 parentView,
-                downloadsLocation = { Environment.DIRECTORY_DOWNLOADS },
+                downloadsLocation = { Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path },
             ) + appLinksCandidate
         }
     }

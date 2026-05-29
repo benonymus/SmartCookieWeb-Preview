@@ -100,7 +100,9 @@ open class Components(private val applicationContext: Context) {
     val packageNameProvider by lazy { DefaultPackageNameProvider(applicationContext) }
 
     val downloadFileUtils by lazy {
-        DefaultDownloadFileUtils(applicationContext) { Environment.DIRECTORY_DOWNLOADS }
+        DefaultDownloadFileUtils(applicationContext) {
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path
+        }
     }
 
     val downloadFileWriter by lazy { DefaultDownloadFileWriter(applicationContext, downloadFileUtils) }
