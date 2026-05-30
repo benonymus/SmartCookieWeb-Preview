@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name" translatable="false">SmartCookieWeb Preview</string>
+  <string name="app_name" translatable="false">SmartCookieWeb TBJ</string>
   <string name="scw_addon_allow_in_private_browsing">Run in private windows</string>
   <string name="scw_addon_successfully_enabled">Enabled %s</string>
   <string name="scw_addon_successfully_disabled">Disabled %s</string>
