@@ -1,10 +1,5 @@
 import com.android.build.api.variant.FilterConfiguration
 
-// versionCode auto-derives from git commit count so every push to master gets
-// a unique, monotonically increasing code. versionName stays manual below.
-// Requires fetch-depth: 0 in the CI checkout step.
-def gitCommitCount = ['git', 'rev-list', '--count', 'HEAD'].execute().text.trim().toInteger()
-
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
@@ -13,6 +8,11 @@ plugins {
     id 'androidx.navigation.safeargs.kotlin'
     id 'org.jetbrains.kotlin.plugin.compose'
 }
+
+// versionCode auto-derives from git commit count so every push to master gets
+// a unique, monotonically increasing code. versionName stays manual below.
+// Requires fetch-depth: 0 in the CI checkout step.
+def gitCommitCount = ['git', 'rev-list', '--count', 'HEAD'].execute().text.trim().toInteger()
 
 
 android {
