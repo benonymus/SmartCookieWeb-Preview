@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
     - uses: actions/checkout@v4
@@ -27,8 +29,19 @@ jobs:
       run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew assembleDebug
-    - name: Upload APK
+    - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
         name: app
         path: app/build/outputs/apk/debug/*.apk
+    - name: Update rolling debug release
+      if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh release delete latest-debug --yes --cleanup-tag 2>/dev/null || true
+        gh release create latest-debug \
+          app/build/outputs/apk/debug/*.apk \
+          --title "Latest Debug Build" \
+          --notes "Auto-built from commit $(git rev-parse --short HEAD) on $(date -u +%Y-%m-%d). This release is automatically replaced on every push to master." \
+          --prerelease
