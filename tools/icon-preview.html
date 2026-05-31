@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SCWP Icon Preview</title>
+<style>
+  body { font-family: system-ui, sans-serif; padding: 24px; background: #000; color: #eee; }
+  h1 { margin: 0 0 16px; font-size: 18px; }
+  .controls { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .controls input[type="color"] { width: 60px; height: 36px; border: none; background: none; cursor: pointer; }
+  .hex { font-family: monospace; font-size: 14px; }
+  .presets { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+  .preset { width: 28px; height: 28px; border-radius: 4px; cursor: pointer; border: 2px solid transparent; transition: transform 0.1s; }
+  .preset:hover { border-color: #fff; transform: scale(1.1); }
+  .icons { display: flex; gap: 40px; flex-wrap: wrap; }
+  .icon-wrap { text-align: center; }
+  .icon {
+    width: 160px;
+    height: 160px;
+    position: relative;
+    background-color: var(--bg, #FDF6E3);
+    overflow: hidden;
+    margin: 0 auto 8px;
+  }
+  .icon img { width: 100%; height: 100%; display: block; position: absolute; top: 0; left: 0; transform: scale(1.4); }
+  .circle { border-radius: 50%; }
+  .squircle { border-radius: 36%; }
+  .rounded { border-radius: 24px; }
+  .label { font-size: 13px; color: #aaa; }
+</style>
+</head>
+<body>
+  <h1>SCWP Icon Preview</h1>
+
+  <div class="controls">
+    <input type="color" id="picker" value="#FDF6E3">
+    <span class="hex" id="hex">#FDF6E3</span>
+  </div>
+
+  <div class="presets" id="presets"></div>
+
+  <div class="icons">
+    <div class="icon-wrap">
+      <div class="icon circle"><img src="../app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png" alt=""></div>
+      <div class="label">Circle<br>(Pixel)</div>
+    </div>
+    <div class="icon-wrap">
+      <div class="icon squircle"><img src="../app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png" alt=""></div>
+      <div class="label">Squircle<br>(Samsung)</div>
+    </div>
+    <div class="icon-wrap">
+      <div class="icon rounded"><img src="../app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png" alt=""></div>
+      <div class="label">Rounded square<br>(stock AOSP)</div>
+    </div>
+  </div>
+
+<script>
+// Picked: release = #FDF6E3, debug = #1E1E1E. Other options grouped below.
+const presets = [
+  // Active picks + reference
+  '#FDF6E3', '#1E1E1E', '#FFFFFF', '#000000',
+  // Release alternatives (light/warm)
+  '#FDF6E3', '#FAF0E6', '#F5F1E8', '#F4E4BC',
+  // Debug alternatives (dark)
+  '#1E293B', '#1E1B4B', '#3F1D38',
+  // Soft accents (if you ever want more color)
+  '#A8D5BA', '#E2B7A2', '#D4A5A5',
+];
+const picker = document.getElementById('picker');
+const hex = document.getElementById('hex');
+const icons = document.querySelectorAll('.icon');
+
+function set(color) {
+  icons.forEach(i => i.style.setProperty('--bg', color));
+  hex.textContent = color.toUpperCase();
+  picker.value = color;
+}
+
+picker.addEventListener('input', e => set(e.target.value));
+
+const presetsEl = document.getElementById('presets');
+presets.forEach(c => {
+  const d = document.createElement('div');
+  d.className = 'preset';
+  d.style.background = c;
+  d.title = c;
+  d.onclick = () => set(c);
+  presetsEl.appendChild(d);
+});
+</script>
+</body>
+</html>
