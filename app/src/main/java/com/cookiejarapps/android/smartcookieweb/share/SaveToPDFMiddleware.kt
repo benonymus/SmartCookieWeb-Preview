@@ -22,7 +22,7 @@ class SaveToPDFMiddleware(
 ) : Middleware<BrowserState, BrowserAction> {
 
     override fun invoke(
-        store: Store<BrowserState, BrowserAction>,
+        context: Store<BrowserState, BrowserAction>,
         next: (BrowserAction) -> Unit,
         action: BrowserAction,
     ) {

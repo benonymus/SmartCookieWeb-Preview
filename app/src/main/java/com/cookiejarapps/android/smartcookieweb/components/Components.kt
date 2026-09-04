@@ -3,7 +3,6 @@ package com.cookiejarapps.android.smartcookieweb.components
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
-import android.os.Environment
 import androidx.core.app.NotificationManagerCompat
 import com.cookiejarapps.android.smartcookieweb.BrowserActivity
 import com.cookiejarapps.android.smartcookieweb.BuildConfig
@@ -64,21 +63,32 @@ import mozilla.components.browser.engine.gecko.permission.GeckoSitePermissionsSt
 import mozilla.components.concept.engine.EngineSession
 import mozilla.components.feature.addons.amo.AMOAddonsProvider
 import mozilla.components.feature.downloads.DefaultFileSizeFormatter
-import mozilla.components.feature.downloads.DefaultPackageNameProvider
-import mozilla.components.feature.downloads.DownloadEstimator
-import mozilla.components.feature.downloads.filewriter.DefaultDownloadFileWriter
-import mozilla.components.support.utils.DefaultDateTimeProvider
-import mozilla.components.support.utils.DefaultDownloadFileUtils
 import mozilla.components.feature.prompts.PromptMiddleware
 import mozilla.components.feature.prompts.file.FileUploadsDirCleaner
 import mozilla.components.feature.sitepermissions.OnDiskSitePermissionsStorage
 import mozilla.components.support.base.android.NotificationsDelegate
+import mozilla.components.support.utils.DefaultDateTimeProvider
+import mozilla.components.support.utils.DefaultDownloadFileUtils
+import mozilla.components.support.utils.DownloadFileUtils
 import mozilla.components.support.base.worker.Frequency
 import org.mozilla.geckoview.ContentBlocking
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 
 private const val DAY_IN_MINUTES = 24 * 60L
+
+/**
+ * A [LocationService] that derives the region from the device locale.
+ */
+private class LocaleLocationService : LocationService {
+    override suspend fun fetchRegion(readFromCache: Boolean): LocationService.Region {
+        val country = Locale.getDefault().country.ifBlank { "US" }
+        return LocationService.Region(country, country)
+    }
+
+    override fun hasRegionCached(): Boolean = false
+}
 
 @Suppress("LargeClass")
 open class Components(private val applicationContext: Context) {
@@ -95,17 +105,7 @@ open class Components(private val applicationContext: Context) {
 
     val dateTimeProvider by lazy { DefaultDateTimeProvider() }
 
-    val downloadEstimator by lazy { DownloadEstimator(dateTimeProvider) }
-
-    val packageNameProvider by lazy { DefaultPackageNameProvider(applicationContext) }
-
-    val downloadFileUtils by lazy {
-        DefaultDownloadFileUtils(applicationContext) {
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path
-        }
-    }
-
-    val downloadFileWriter by lazy { DefaultDownloadFileWriter(applicationContext, downloadFileUtils) }
+    val downloadFileUtils: DownloadFileUtils by lazy { DefaultDownloadFileUtils(applicationContext) }
 
     val preferences: SharedPreferences =
             applicationContext.getSharedPreferences(BROWSER_PREFERENCES, Context.MODE_PRIVATE)
@@ -179,13 +179,18 @@ open class Components(private val applicationContext: Context) {
     val store by lazy {
         BrowserStore(
                 middleware = listOf(
-                        DownloadMiddleware(applicationContext, DownloadService::class.java, deleteFileFromStorage = { false }, downloadFileUtils = downloadFileUtils),
+                        DownloadMiddleware(
+                                applicationContext,
+                                DownloadService::class.java,
+                                deleteFileFromStorage = { false },
+                                downloadFileUtils = downloadFileUtils,
+                        ),
                         ReaderViewMiddleware(),
                         ThumbnailsMiddleware(thumbnailStorage),
                         UndoMiddleware(),
                         RegionMiddleware(
                                 applicationContext,
-                                LocationService.default()
+                                LocaleLocationService()
                         ),
                         SearchMiddleware(applicationContext),
                         RecordingDevicesMiddleware(applicationContext, notificationsDelegate),
@@ -199,8 +204,6 @@ open class Components(private val applicationContext: Context) {
         ).apply{
             icons.install(engine, this)
 
-            // RegionMiddleware no longer reacts to InitAction since a-c 149,
-            // so kick off region/search-engine loading explicitly.
             dispatch(SearchAction.RefreshSearchEnginesAction)
 
             WebNotificationFeature(

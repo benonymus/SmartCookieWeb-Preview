@@ -7,6 +7,7 @@ import mozilla.components.concept.storage.BookmarkInfo
 import mozilla.components.concept.storage.BookmarkNode
 import mozilla.components.concept.storage.BookmarkNodeType
 import mozilla.components.concept.storage.BookmarksStorage
+import mozilla.components.concept.storage.bookmarks.InsertableBookmarkTreeRoot
 import java.util.*
 
 class CustomBookmarksStorage(context: Context): BookmarksStorage {
@@ -14,6 +15,10 @@ class CustomBookmarksStorage(context: Context): BookmarksStorage {
     private val manager = BookmarkManager.getInstance(context)
 
     override suspend fun addFolder(parentGuid: String, title: String, position: UInt?): Result<String> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun insertTree(tree: InsertableBookmarkTreeRoot): Result<String> {
         TODO("Not yet implemented")
     }
 

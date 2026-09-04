@@ -70,6 +70,10 @@ class WebExtensionPromptFeature(
                         handleBeforeInstallationRequest(promptRequest)
                         consumePromptRequest()
                     }
+
+                    is WebExtensionPromptRequest.InstallationRequested -> {
+                        consumePromptRequest()
+                    }
                 }
             }
         }
@@ -107,7 +111,12 @@ class WebExtensionPromptFeature(
         addon: Addon,
         promptRequest: WebExtensionPromptRequest.AfterInstallation.Permissions.Required,
     ) {
-        showPermissionDialog(addon = addon, promptRequest = promptRequest, permissions = promptRequest.permissions)
+        showPermissionDialog(
+            addon = addon,
+            promptRequest = promptRequest,
+            permissions = promptRequest.permissions,
+            dataCollectionPermissions = promptRequest.dataCollectionPermissions,
+        )
     }
 
     @VisibleForTesting
@@ -119,7 +128,12 @@ class WebExtensionPromptFeature(
 
         // If we don't have any promptable permissions, just proceed.
         if (shouldGrantWithoutPrompt) {
-            handlePermissions(promptRequest, granted = true, privateBrowsingAllowed = false)
+            handlePermissions(
+                promptRequest,
+                granted = true,
+                privateBrowsingAllowed = false,
+                technicalAndInteractionDataGranted = false,
+            )
             return
         }
 
@@ -128,6 +142,7 @@ class WebExtensionPromptFeature(
             promptRequest = promptRequest,
             forOptionalPermissions = true,
             permissions = promptRequest.permissions,
+            dataCollectionPermissions = promptRequest.dataCollectionPermissions,
         )
     }
 
@@ -158,7 +173,7 @@ class WebExtensionPromptFeature(
 
             is WebExtensionInstallException.SoftBlocked -> {
                 url = formatBlocklistURL(exception)
-                context.getString(R.string.scw_addon_soft_blocked_install, addonName, appName)
+                context.getString(R.string.mozac_feature_addons_soft_blocked_2, addonName, appName)
             }
 
             is WebExtensionInstallException.UserCancelled -> {
@@ -240,7 +255,8 @@ class WebExtensionPromptFeature(
         promptRequest: WebExtensionPromptRequest.AfterInstallation.Permissions,
         forOptionalPermissions: Boolean = false,
         permissions: List<String> = emptyList(),
-        origins: List<String> = emptyList()
+        origins: List<String> = emptyList(),
+        dataCollectionPermissions: List<String> = emptyList()
     ) {
         if (isInstallationInProgress || hasExistingPermissionDialogFragment()) {
             return
@@ -251,23 +267,25 @@ class WebExtensionPromptFeature(
             forOptionalPermissions = forOptionalPermissions,
             origins = origins,
             permissions = permissions,
+            dataCollectionPermissions = dataCollectionPermissions,
             promptsStyling = AddonDialogFragment.PromptsStyling(
                 gravity = Gravity.BOTTOM,
                 shouldWidthMatchParent = true,
             ),
-            onPositiveButtonClicked = { _, privateBrowsingAllowed, _ ->
+            onPositiveButtonClicked = { _, privateBrowsingAllowed, technicalAndInteractionDataGranted ->
                 handlePermissions(
                     promptRequest,
                     granted = true,
                     privateBrowsingAllowed,
+                    technicalAndInteractionDataGranted,
                 )
             },
-            dataCollectionPermissions = emptyList(),
             onNegativeButtonClicked = {
                 handlePermissions(
                     promptRequest,
                     granted = false,
                     privateBrowsingAllowed = false,
+                    technicalAndInteractionDataGranted = false,
                 )
             },
         )
@@ -282,6 +300,7 @@ class WebExtensionPromptFeature(
         promptRequest: WebExtensionPromptRequest.AfterInstallation.Permissions,
         granted: Boolean,
         privateBrowsingAllowed: Boolean,
+        technicalAndInteractionDataGranted: Boolean,
     ) {
         when (promptRequest) {
             is WebExtensionPromptRequest.AfterInstallation.Permissions.Optional -> {
@@ -292,6 +311,7 @@ class WebExtensionPromptFeature(
                 val response = PermissionPromptResponse(
                     isPermissionsGranted = granted,
                     isPrivateModeGranted = privateBrowsingAllowed,
+                    isTechnicalAndInteractionDataGranted = technicalAndInteractionDataGranted,
                 )
                 promptRequest.onConfirm(response)
             }
@@ -301,18 +321,23 @@ class WebExtensionPromptFeature(
 
     private fun tryToReAttachButtonHandlersToPreviousDialog() {
         findPreviousDialogFragment()?.let { dialog ->
-            dialog.onPositiveButtonClicked = { addon, privateBrowsingAllowed, _ ->
+            dialog.onPositiveButtonClicked = { addon, privateBrowsingAllowed, technicalAndInteractionDataGranted ->
                 store.state.webExtensionPromptRequest?.let { promptRequest ->
                     if (promptRequest is WebExtensionPromptRequest.AfterInstallation.Permissions
                     ) {
-                        handlePermissions(promptRequest, granted = true, privateBrowsingAllowed)
+                        handlePermissions(promptRequest, granted = true, privateBrowsingAllowed, technicalAndInteractionDataGranted)
                     }
                 }
             }
             dialog.onNegativeButtonClicked = {
                 store.state.webExtensionPromptRequest?.let { promptRequest ->
                     if (promptRequest is WebExtensionPromptRequest.AfterInstallation.Permissions) {
-                        handlePermissions(promptRequest, granted = false, privateBrowsingAllowed = false)
+                        handlePermissions(
+                            promptRequest,
+                            granted = false,
+                            privateBrowsingAllowed = false,
+                            technicalAndInteractionDataGranted = false,
+                        )
                     }
                 }
             }

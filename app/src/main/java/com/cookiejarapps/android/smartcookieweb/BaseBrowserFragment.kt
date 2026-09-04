@@ -33,6 +33,7 @@ import com.cookiejarapps.android.smartcookieweb.components.StoreProvider
 import com.cookiejarapps.android.smartcookieweb.components.toolbar.*
 import com.cookiejarapps.android.smartcookieweb.databinding.FragmentBrowserBinding
 import com.cookiejarapps.android.smartcookieweb.downloads.DownloadService
+import com.cookiejarapps.android.smartcookieweb.ext.alreadyOnDestination
 import com.cookiejarapps.android.smartcookieweb.ext.components
 import com.cookiejarapps.android.smartcookieweb.integration.ContextMenuIntegration
 import com.cookiejarapps.android.smartcookieweb.integration.FindInPageIntegration
@@ -87,7 +88,7 @@ import mozilla.components.support.locale.ActivityContextWrapper
 import mozilla.components.support.utils.ext.requestInPlacePermissions
 import com.cookiejarapps.android.smartcookieweb.browser.home.SharedViewModel
 import java.lang.ref.WeakReference
-import mozilla.components.ui.widgets.behavior.EngineViewClippingBehavior as OldEngineViewClippingBehavior
+import mozilla.components.ui.widgets.behavior.EngineViewClippingBehavior
 
 /**
  * Base fragment extended by [BrowserFragment].
@@ -246,11 +247,11 @@ abstract class BaseBrowserFragment : Fragment(), UserInteractionHandler, Activit
 
         _browserToolbarView = BrowserToolbarView(
             container = binding.browserLayout,
+            engineView = binding.engineView,
             toolbarPosition = if(UserPreferences(context).toolbarPosition == ToolbarPosition.BOTTOM.ordinal) ToolbarPosition.BOTTOM else ToolbarPosition.TOP,
             interactor = browserInteractor,
             customTabSession = customTabSessionId?.let { store.state.findCustomTab(it) },
-            lifecycleOwner = viewLifecycleOwner,
-            engineView = binding.engineView,
+            lifecycleOwner = viewLifecycleOwner
         )
 
         //TODO: show ssl dialog
@@ -449,12 +450,12 @@ abstract class BaseBrowserFragment : Fragment(), UserInteractionHandler, Activit
                 requireContext().applicationContext,
                 store = components.store,
                 useCases = components.downloadsUseCases,
+                downloadFileUtils = components.downloadFileUtils,
                 fragmentManager = childFragmentManager,
                 shouldForwardToThirdParties = { UserPreferences(requireContext()).promptExternalDownloader },
                 onDownloadStopped = { download, id, status ->
                     debug("Download ID#$id $download with status $status is done.")
                 },
-                downloadFileUtils = components.downloadFileUtils,
                 downloadManager = FetchDownloadManager(
                     requireContext().applicationContext,
                     components.store,
@@ -586,14 +587,19 @@ abstract class BaseBrowserFragment : Fragment(), UserInteractionHandler, Activit
         if (UserPreferences(context).hideBarWhileScrolling) {
             binding.engineView.setDynamicToolbarMaxHeight(toolbarHeight)
 
-            val isBottom = UserPreferences(context).shouldUseBottomToolbar
+            val (topToolbarHeight, bottomToolbarHeight) =
+                if (UserPreferences(context).shouldUseBottomToolbar) {
+                    0 to toolbarHeight
+                } else {
+                    toolbarHeight to 0
+                }
             (binding.swipeRefresh.layoutParams as CoordinatorLayout.LayoutParams).behavior =
-                OldEngineViewClippingBehavior(
+                EngineViewClippingBehavior(
                     context,
                     null,
                     binding.swipeRefresh,
-                    if (isBottom) 0 else toolbarHeight,
-                    if (isBottom) toolbarHeight else 0,
+                    topToolbarHeight,
+                    bottomToolbarHeight
                 )
         } else {
             binding.engineView.setDynamicToolbarMaxHeight(0)
@@ -646,6 +652,16 @@ abstract class BaseBrowserFragment : Fragment(), UserInteractionHandler, Activit
                                     )
                                 }
                             }
+                        } else if (store.state.selectedTab?.content?.url == "about:homepage" &&
+                            !navController.alreadyOnDestination(R.id.homeFragment)
+                        ) {
+                            // On session restore GeckoView does not re-load "about:homepage", so
+                            // we navigate to it explicitly here.
+                            navController.navigate(
+                                HomeFragmentDirections.actionGlobalHome(
+                                    focusOnAddressBar = false
+                                )
+                            )
                         }
                     }
                 }

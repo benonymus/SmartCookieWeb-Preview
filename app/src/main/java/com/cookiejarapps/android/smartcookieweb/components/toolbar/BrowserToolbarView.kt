@@ -19,8 +19,8 @@ import mozilla.components.browser.state.selector.selectedTab
 import mozilla.components.browser.state.state.CustomTabSessionState
 import mozilla.components.browser.toolbar.BrowserToolbar
 import mozilla.components.browser.toolbar.display.DisplayToolbar
-import mozilla.components.concept.engine.EngineView
 import mozilla.components.support.ktx.util.URLStringUtils.toDisplayUrl
+import mozilla.components.concept.engine.EngineView
 import mozilla.components.ui.widgets.behavior.DependencyGravity
 import mozilla.components.ui.widgets.behavior.EngineViewScrollingBehavior
 import mozilla.components.ui.widgets.behavior.EngineViewScrollingBehaviorFactory
@@ -39,11 +39,11 @@ interface BrowserToolbarViewInteractor {
 @SuppressWarnings("LargeClass")
 class BrowserToolbarView(
     private val container: ViewGroup,
+    private val engineView: EngineView,
     private val toolbarPosition: ToolbarPosition,
     private val interactor: BrowserToolbarViewInteractor,
     private val customTabSession: CustomTabSessionState?,
-    private val lifecycleOwner: LifecycleOwner,
-    private val engineView: EngineView,
+    private val lifecycleOwner: LifecycleOwner
 ) {
 
     private val settings = UserPreferences(container.context)
@@ -236,11 +236,7 @@ class BrowserToolbarView(
     @VisibleForTesting
     internal fun setDynamicToolbarBehavior(dependencyGravity: DependencyGravity) {
         (view.layoutParams as? CoordinatorLayout.LayoutParams)?.apply {
-            behavior = EngineViewScrollingBehaviorFactory().build(
-                engineView = engineView,
-                dependency = view,
-                dependencyGravity = dependencyGravity,
-            )
+            behavior = EngineViewScrollingBehaviorFactory().build(engineView, view, dependencyGravity)
         }
     }
 

@@ -49,21 +49,17 @@ class AwesomeBarWrapper @JvmOverloads constructor(
                     description = Color(context.getColorFromAttr(android.R.attr.textColorSecondary)),
                     autocompleteIcon =  Color(context.getColorFromAttr(android.R.attr.textColorSecondary))
                 ),
-                onSuggestionClicked = { suggestion ->
-                    suggestion.onSuggestionClicked?.invoke()
+                onSuggestionClicked = { suggestionItem ->
+                    suggestionItem.onSuggestionClicked?.invoke()
                     onStopListener?.invoke()
                 },
                 onAutoComplete = { suggestion ->
                     onEditSuggestionListener?.invoke(suggestion.editSuggestion!!)
                 },
-                onRemoveClicked = { },
+                onRemoveClicked = { }
             )
         }
     }
-
-    override fun updateHiddenSuggestions(hiddenSuggestions: Set<AwesomeBar.GroupedSuggestion>) = Unit
-
-    override fun setOnRemoveSuggestionButtonClicked(listener: (AwesomeBar.GroupedSuggestion) -> Unit) = Unit
 
     override fun addProviders(vararg providers: AwesomeBar.SuggestionProvider) {
         val newProviders = this.providers.value.toMutableList()
@@ -95,5 +91,13 @@ class AwesomeBarWrapper @JvmOverloads constructor(
 
     override fun setOnStopListener(listener: () -> Unit) {
         onStopListener = listener
+    }
+
+    override fun updateHiddenSuggestions(hiddenSuggestions: Set<AwesomeBar.GroupedSuggestion>) {
+        // This wrapper does not support hiding grouped suggestions.
+    }
+
+    override fun setOnRemoveSuggestionButtonClicked(listener: (AwesomeBar.GroupedSuggestion) -> Unit) {
+        // This wrapper does not support removing grouped suggestions.
     }
 }

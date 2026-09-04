@@ -33,6 +33,9 @@ class ContextMenuIntegration(
     sessionId: String? = null
 ) : LifecycleAwareFeature {
 
+    private fun downloadsLocation(): String =
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path
+
     val candidates = run {
         if (sessionId != null) {
             val snackbarDelegate = DefaultSnackbarDelegate()
@@ -40,7 +43,7 @@ class ContextMenuIntegration(
                 createCopyLinkCandidate(context, parentView, snackbarDelegate),
                 createShareLinkCandidate(context),
                 createOpenImageInNewTabCandidate(context, tabsUseCases, parentView, snackbarDelegate),
-                createSaveImageCandidate(context, contextMenuUseCases, { Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path }),
+                createSaveImageCandidate(context, contextMenuUseCases, downloadsLocation = { downloadsLocation() }),
                 createCopyImageLocationCandidate(context, parentView, snackbarDelegate),
                 createAddContactCandidate(context),
                 createShareEmailAddressCandidate(context),
@@ -59,7 +62,7 @@ class ContextMenuIntegration(
                 tabsUseCases,
                 contextMenuUseCases,
                 parentView,
-                downloadsLocation = { Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path },
+                downloadsLocation = { downloadsLocation() }
             ) + appLinksCandidate
         }
     }
