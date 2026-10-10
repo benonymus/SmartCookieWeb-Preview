@@ -17,7 +17,11 @@ def gitCommitCount = ['git', 'rev-list', '--count', 'HEAD'].execute().text.trim(
 
 android {
 
-    compileSdkVersion 37
+    compileSdk {
+        version = release(37) {
+            minorApiLevel = 1
+        }
+    }
     buildFeatures {
         buildConfig true
         viewBinding true
@@ -31,17 +35,13 @@ android {
         minSdkVersion 26
         targetSdkVersion 37
         versionCode gitCommitCount
-        versionName "30.2"
+        versionName "30.4"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11
     }
 
     signingConfigs {
@@ -99,6 +99,12 @@ android {
 
     lint {
         abortOnError false
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
     }
 }
 
@@ -162,7 +168,7 @@ dependencies {
     implementation "com.jakewharton:butterknife:$butterKnifeVersion"
     kapt "com.jakewharton:butterknife-compiler:$butterKnifeVersion"
 
-    final def mozComponentsVersion = "153.0b8"
+    final def mozComponentsVersion = "154.0.1"
 
     // Mozilla compose components
     implementation "org.mozilla.components:compose-awesomebar:$mozComponentsVersion"
